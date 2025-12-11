@@ -1,0 +1,13 @@
+{
+  "handler": "handler.py",
+  "runtime": "python3.10",
+  "requirements": [
+    "runpod",
+    "realesrgan",
+    "basicsr",
+    "facexlib",
+    "gfpgan",
+    "opencv-python-headless",
+    "Pillow"
+  ]
+}
