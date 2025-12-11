@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # System Dependencies installieren
-# WICHTIG: "libgl1" statt "libgl1-mesa-glx" für neuere Debian-Versionen
+# FIX: "libgl1" statt "libgl1-mesa-glx" für diese neuere Linux-Version
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
