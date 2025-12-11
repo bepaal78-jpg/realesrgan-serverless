@@ -1,0 +1,8 @@
+{
+  "title": "Real-ESRGAN Serverless",
+  "description": "Image upscaling with Real-ESRGAN x4",
+  "type": "serverless",
+  "category": "image",
+  "icon": "https://raw.githubusercontent.com/xinntao/Real-ESRGAN/master/assets/realesrgan_logo.png",
+  "env": []
+}
