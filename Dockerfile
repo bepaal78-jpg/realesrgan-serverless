@@ -1,19 +1,19 @@
-# Wir nutzen ein sehr schlankes Basis-Image (spart GBs)
+# Wir nutzen ein sehr schlankes Basis-Image
 FROM python:3.10-slim
 
 # Arbeitsverzeichnis
 WORKDIR /app
 
-# System Dependencies installieren (Nötig für OpenCV)
-# Wir installieren auch git, da manche Libraries das brauchen
+# System Dependencies installieren
+# WICHTIG: "libgl1" statt "libgl1-mesa-glx" für neuere Debian-Versionen
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     git \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# 1. PyTorch CPU-Version installieren (Das ist der wichtigste Schritt zum Platz sparen!)
+# 1. PyTorch CPU-Version installieren (Spart Speicherplatz!)
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # 2. Restliche Dependencies installieren
