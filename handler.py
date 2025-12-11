@@ -1,99 +1,99 @@
-import runpod
-import base64
-import io
-import torch
-import numpy as np
-from PIL import Image
-import cv2
-from realesrgan import RealESRGANer
-from basicsr.archs.rrdbnet_arch import RRDBNet
+importieren Runpod
+importieren Basis64
+importieren io
+importieren Fackel
+importieren Numpy als np
+von PIL importieren Bild
+importieren Lebenslauf
+von Realesrgan importieren RealESRGANer
+von basicsr.archs.rrdbnet_arch importieren RRDBNet
 
 # --- Automatische Hardware-Erkennung ---
-# Prüft, ob eine Nvidia GPU verfügbar ist. Wenn nicht, nutze CPU.
-if torch.cuda.is_available():
-    device_type = 'cuda'
-    gpu_id = 0
-    use_half = True  # FP16 ist schneller auf GPU
-    print("🚀 Running on GPU (CUDA)")
-else:
-    device_type = 'cpu'
-    gpu_id = None    # None zwingt RealESRGAN auf CPU
-    use_half = False # CPU unterstützt FP16 oft schlecht
-    print("⚠️ Running on CPU (Slower but works without GPU)")
+# Prüft, ob eine Nvidia GPU vergügbar ist. Wenn nicht, keine CPU.
+wenn Fackel.Cuda.ist_verfügbar():
+ Gerät_Typ = 'cuda'
+ gpu_id = 0
+ use_half = Wahr  # FP16 ist Schneller auf GPU
+    drucken("🚀 Läuft auf GPU (CUDA)")
+sonst:
+ Gerät_Typ = 'cpu'
+ gpu_id = Keine    # Keine zwingt RealESRGAN auf CPU
+ use_half = Falsch # CPU unterstütz FP16 oft schlecht
+    drucken(„⚠️ Läuft auf der CPU (langsamer, funktioniert aber ohne GPU)“)
 
-# --- Model laden ---
-print("Loading Real-ESRGAN model...")
-model = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, scale=4)
+# --- Modell beladen ---
+drucken(„Real-ESRGAN-Modell wird geladen ...“)
+Modell = RRDBNet(num_in_ch=3, num_out_ch=3, num_feat=64, num_block=23, num_grow_ch=32, Skala=4)
 
-upsampler = RealESRGANer(
-    scale=4,
-    model_path='/app/models/RealESRGAN_x4plus.pth',
-    model=model,
-    tile=0,
-    tile_pad=10,
-    pre_pad=0,
-    half=use_half,  # Dynamisch je nach Hardware
-    gpu_id=gpu_id   # Dynamisch je nach Hardware
+Upsampler = RealESRGANer(
+ Skala=4,
+ model_path='/app/models/RealESRGAN_x4plus.pth',
+ Modell=Modell,
+ Fliese=0,
+ tile_pad=10,
+ pre_pad=0,
+ Hälfte=verwenden_halb, # Dynamisch je nach Hardware
+ gpu_id=gpu_id # Dynamisch je nach Hardware
 )
-print("Model loaded successfully!")
+drucken(„Modell erfolgreich geladen!“)
 
-def upscale_image(job):
+def upscale_image(Job):
     """
-    Handler für RunPod Serverless
-    Input: {"image": "base64_encoded_image", "scale": 4}
-    Output: {"image": "base64_encoded_upscaled_image"}
-    """
-    try:
-        job_input = job['input']
+ Handler für RunPod Serverless
+ Eingabe: {"image": "base64_encoded_image", "scale": 4}
+ Ausgabe: {"image": "base64_encoded_upscaled_image"}
+ """
+    versuchen:
+ job_input = Job['Eingabe']
         
-        # Base64 Image dekodieren
-        image_b64 = job_input.get('image')
-        # Standard-Scale auf 4 setzen, falls nicht angegeben
-        target_scale = job_input.get('scale', 4)
+        # Base64 Bild dekodieren
+ image_b64 = job_input.bekommen('Bild')
+        # Standard-Scale auf 4 Setzen, fällt nicht gegengeben
+ target_scale = job_input.bekommen('Skala', 4)
         
-        if not image_b64:
-            return {"error": "No image provided"}
+        wenn nicht Bild_b64:
+            zurückgeben {"Fehler": „Kein Bild bereitgestellt“}
         
-        # Decode base64
-        image_data = base64.b64decode(image_b64)
-        image = Image.open(io.BytesIO(image_data))
+        # Base64 dekodieren
+ image_data = base64.b64dekodieren(Bild_b64)
+ Bild = Bild.öffnen(io.BytesIO(Bild_Daten))
         
         # Konvertiere zu numpy array (BGR für cv2)
-        img_array = np.array(image)
+ img_array = np.Array(Bild)
         
         # Farbkanäle korrigieren
-        if len(img_array.shape) == 2:  # Graustufen
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_GRAY2BGR)
-        elif img_array.shape[2] == 4:  # RGBA
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGR)
-        elif img_array.shape[2] == 3:  # RGB
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+        wenn Länge(img_array.Form) == 2:  # Graustufen
+ img_array = cv2.cvtColor(img_array, cv2.FARBE_GRAY2BGR)
+        Elif img_array.Form[2] == 4:  # RGBA
+ img_array = cv2.cvtColor(img_array, cv2.FARBE_RGBA2BGR)
+        Elif img_array.Form[2] == 3:  # RGB
+ img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
         
-        # Upscaling durchführen
-        print(f"Upscaling image... Size: {img_array.shape}")
+        # Hochskalierung durchfürhren
+        drucken(f"Bild hochskalieren... Größe: {img_array.Form}")
         
-        # RealESRGAN führt das Upscaling durch (outscale bestimmt den Zoom-Faktor)
-        output, _ = upsampler.enhance(img_array, outscale=target_scale)
+        # RealESRGAN für das Upscaling durch (outscale bestimmt den Zoom-Faktor)
+ Ausgabe, _ = Upsampler.verbessern(img_array, outscale=target_scale)
         
-        # Zurück zu RGB für Pillow
-        output = cv2.cvtColor(output, cv2.COLOR_BGR2RGB)
-        output_image = Image.fromarray(output)
+        # Zum RGB für Kissen
+ Ausgabe = cv2.cvtColor(Ausgabe, cv2.COLOR_BGR2RGB)
+ output_image = Bild.Fromarray(Ausgabe)
         
-        # Encode zu base64
-        buffered = io.BytesIO()
-        output_image.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode()
+        # Zu base64 kodieren
+ gepuffert = io.BytesIO()
+ Ausgabe_Bild.speichern(gepuffert, Format="PNG")
+ img_str = base64.b64-codierung(gepuffert.Wert erhalten()).dekodieren()
         
-        return {
-            "image": img_str,
-            "original_size": list(image.size),
-            "upscaled_size": list(output_image.size),
-            "device_used": device_type
+        zurückgeben {
+            "Bild": img_str,
+            "original_size": Liste(Bild.Größe),
+            "upscaled_size": Liste(Ausgabe_Bild.Größe),
+            "Gerät_benutzt": Gerät_Typ
         }
         
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return {"error": str(e)}
+    außer Ausnahme als e:
+        drucken(f"Fehler: {str(e)}")
+        zurückgeben {"Fehler": str(e)}
 
 # RunPod Serverless Handler starten
-runpod.serverless.start({"handler": upscale_image})
+Runpod.serverlos.starten({"Handler": upscale_image})
