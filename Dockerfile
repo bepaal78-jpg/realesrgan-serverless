@@ -1,23 +1,25 @@
-# Wir nutzen ein sehr schlankes Basis-Image
+# Schlankes Basis-Image
 FROM python:3.10-slim
 
 # Arbeitsverzeichnis
 WORKDIR /app
 
-# System Dependencies installieren
-# FIX: "libgl1" statt "libgl1-mesa-glx" für diese neuere Linux-Version
+# WICHTIG: build-essential hinzufügen für Python-Module, die kompiliert werden müssen
+# libgl1 für OpenCV
 RUN apt-get update && apt-get install -y \
+    build-essential \
     libgl1 \
     libglib2.0-0 \
     git \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# 1. PyTorch CPU-Version installieren (Spart Speicherplatz!)
+# 1. PyTorch CPU-Version (Wichtig für die Größe!)
 RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# 2. Restliche Dependencies installieren
-RUN pip install --no-cache-dir \
+# 2. Restliche Dependencies
+# Wir nutzen --prefer-binary um Kompilier-Fehler zu vermeiden
+RUN pip install --no-cache-dir --prefer-binary \
     runpod \
     realesrgan \
     basicsr \
@@ -35,5 +37,5 @@ RUN mkdir -p /app/models && \
 # Handler Script kopieren
 COPY handler.py /app/handler.py
 
-# RunPod Handler starten
+# Start-Befehl: -u sorgt dafür, dass wir Logs sofort sehen (wichtig für Debugging!)
 CMD ["python", "-u", "handler.py"]
