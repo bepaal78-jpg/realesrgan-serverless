@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "test_input",
+      "input": {
+        "test": "Hello RunPod"
+      },
+      "timeout": 10000
+    }
+  ]
+}

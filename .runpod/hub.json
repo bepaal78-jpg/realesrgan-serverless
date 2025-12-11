@@ -1,0 +1,16 @@
+{
+  "title": "Realesrgan Serverless",
+  "description": "Upscaling Worker",
+  "type": "serverless",
+  "category": "image",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 10,
+    "env": [
+      {
+        "key": "BUCKET_ENDPOINT_URL",
+        "value": ""
+      }
+    ]
+  }
+}
