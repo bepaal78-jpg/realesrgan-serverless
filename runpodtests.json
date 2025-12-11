@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "validation_test",
+      "input": {
+        "image": "/9j/4AAQSkZJRg...",
+        "scale": 4
+      },
+      "timeout": 30000
+    }
+  ]
+}
