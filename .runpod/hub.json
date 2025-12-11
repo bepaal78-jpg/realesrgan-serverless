@@ -1,6 +1,6 @@
 {
   "title": "Realesrgan Serverless",
-  "description": "Upscaling Worker",
+  "description": "Upscaling Worker (CPU Optimized Build)",
   "type": "serverless",
   "category": "image",
   "config": {
