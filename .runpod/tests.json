@@ -1,11 +1,12 @@
 {
   "tests": [
     {
-      "name": "test_input",
+      "name": "test_upscale",
       "input": {
-        "test": "Hello RunPod"
+        "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNk+M9Qz0AEYBxVSF+FAP0QBAcKhgCgAAAAAElFTkSuQmCC",
+        "scale": 4
       },
-      "timeout": 10000
+      "timeout": 60000
     }
   ]
 }
